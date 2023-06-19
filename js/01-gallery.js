@@ -1,23 +1,49 @@
 import { galleryItems } from "./gallery-items.js";
 // Change code below this line
 
-const gallery = document.querySelector(".gallery");
+const galleryMarkUp = document.querySelector(".gallery");
 
-const liCreator = [];
-
-galleryItems.forEach((el) => {
-  const item = document.createElement("li");
-  item.className = `item`;
-  liCreator.push(item);
-});
-gallery.append(...liCreator);
-
-const list = document.querySelector(".gallery");
-
-const markup = galleryItems
+const galleryEl = galleryItems
   .map(
-    (galleryItems) =>
-      `<li><img class="picture" src=${galleryItems.preview} width = '360' alt='${galleryItems.description}'></img></li>`
+    ({ preview, description, original }) =>
+      `<div class="gallery__item">
+        <a class="gallery__link" href="${original}">
+            <img
+            class="gallery__image"
+            src="${preview}"
+            data-source="${original}"
+            alt="${description}"
+            />
+        </a>
+    </div>`
   )
   .join("");
-list.innerHTML = markup;
+
+galleryMarkUp.insertAdjacentHTML("beforeend", galleryEl);
+
+galleryMarkUp.addEventListener("click", onImgClick);
+
+function onImgClick(evt) {
+  evt.preventDefault();
+
+  if (evt.target.nodeName !== "IMG") {
+    return;
+  }
+
+  const modal = basicLightbox.create(
+    `<img src="${evt.target.dataset.source}" width="800" height="600">`,
+
+    {
+      onShow: () => window.addEventListener("keydown", onEscKeyPress),
+      onClose: () => window.removeEventListener("keydown", onEscKeyPress),
+    }
+  );
+
+  modal.show();
+
+  function onEscKeyPress(evt) {
+    if (evt.code === "Escape") {
+      modal.close();
+    }
+  }
+}
